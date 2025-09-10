@@ -7,6 +7,10 @@ export default function AboutPage() {
         a demo project where we’re learning Next.js step by step. You’ll find
         examples of reusable components, routing, and more.
       </p>
+      <h2 className='text-gray-700'>
+        This is a minimal setup with Next.js + Tailwind v3. Add pages in{' '}
+        <code>/app</code> to learn routing.
+      </h2>
     </div>
   );
 }

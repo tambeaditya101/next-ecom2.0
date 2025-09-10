@@ -1,12 +1,16 @@
 'use client';
+import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
+import { User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useCart } from '../context/CartContext';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { cart, wishlist } = useCart();
+  const { user, logout } = useAuth();
 
   // Avoid SSR mismatch: only show counts after mount
   const [mounted, setMounted] = useState(false);
@@ -35,7 +39,8 @@ export default function Navbar() {
   return (
     <nav className='bg-blue-600 text-white text-lg px-6 py-3 flex items-center justify-between relative'>
       <h1 className='text-lg font-bold'>NextLearn</h1>
-      <div className='flex space-x-6 relative'>
+
+      <div className='flex space-x-6 relative items-center'>
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -65,6 +70,41 @@ export default function Navbar() {
             </div>
           );
         })}
+        {/* 🔑 Auth Links */}
+        {!user ? (
+          <div className='relative'>
+            <Link
+              href='/login'
+              className='relative px-1 py-1 transition-colors duration-300 ease-in-out'
+            >
+              Login
+            </Link>
+            <span
+              className={`
+        absolute left-0 -bottom-1 h-0.5 bg-yellow-300 transition-all duration-300
+        ${pathname === '/login' ? 'w-full' : 'w-0'}
+      `}
+            />
+          </div>
+        ) : (
+          <div className='flex items-center space-x-4'>
+            <Link href='/profile' className='hover:opacity-80'>
+              <div className='w-8 h-8 rounded-full bg-white dark:bg-blue-600 flex items-center justify-center'>
+                <User className='w-5 h-5 text-blue-600 dark:text-white ' />
+              </div>
+            </Link>
+
+            <button
+              onClick={() => {
+                logout();
+                router.push('/');
+              }}
+              className='bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600'
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );

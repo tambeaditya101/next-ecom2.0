@@ -90,10 +90,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Clear cart (checkout)
-  const clearCart = () => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message: 'Checkout successful!' }]);
-    setTimeout(() => removeToast(id), 2000);
+  const clearCart = (showToast = true) => {
+    if (showToast) {
+      const id = Date.now();
+      setToasts((prev) => [...prev, { id, message: 'Checkout successful!' }]);
+      setTimeout(() => removeToast(id), 2000);
+    }
 
     setCart([]);
     localStorage.removeItem('cart');
