@@ -7,27 +7,23 @@ import {
   useState,
 } from 'react';
 
-type Product = {
+export type Product = {
   title: string;
   price: number;
   image: string;
 };
 
-type CartItem = Product & { quantity: number };
-
-type Toast = {
-  id: number;
-  message: string;
-};
+export type CartItem = Product & { quantity: number };
+export type Toast = { id: number; message: string };
 
 type CartContextType = {
   cart: CartItem[];
   addToCart: (product: Product) => void;
   removeFromCart: (index: number) => void;
   updateQuantity: (index: number, quantity: number) => void;
+  clearCart: () => void;
   toasts: Toast[];
   removeToast: (id: number) => void;
-  clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -36,7 +32,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Load cart from localStorage on initial mount
+  // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) setCart(JSON.parse(savedCart));
@@ -48,18 +44,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [cart]);
 
   const addToCart = (product: Product) => {
-    setCart((prevCart) => {
-      const index = prevCart.findIndex((item) => item.title === product.title);
+    setCart((prev) => {
+      const index = prev.findIndex((item) => item.title === product.title);
       if (index !== -1) {
-        return prevCart.map((item, i) =>
+        return prev.map((item, i) =>
           i === index ? { ...item, quantity: item.quantity + 1 } : item
         );
-      } else {
-        return [...prevCart, { ...product, quantity: 1 }];
       }
+      return [...prev, { ...product, quantity: 1 }];
     });
 
-    // Add toast
     const id = Date.now();
     setToasts((prev) => [
       ...prev,
@@ -68,35 +62,30 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setTimeout(() => removeToast(id), 2000);
   };
 
-  const removeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
-
   const removeFromCart = (index: number) => {
-    setCart((prevCart) => prevCart.filter((_, i) => i !== index));
+    setCart((prev) => prev.filter((_, i) => i !== index));
   };
 
   const updateQuantity = (index: number, quantity: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item, i) =>
+    setCart((prev) =>
+      prev.map((item, i) =>
         i === index ? { ...item, quantity: Math.max(quantity, 1) } : item
       )
     );
   };
 
   const clearCart = () => {
-    // Create checkout success toast
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message: 'Checkout successful!' }]);
-
-    // Remove toast after 2 seconds
     setTimeout(() => removeToast(id), 2000);
 
-    // Clear cart after a short delay (50ms) so toast renders
-    setTimeout(() => {
-      setCart([]);
-      localStorage.removeItem('cart');
-    }, 50);
+    // Clear cart
+    setCart([]);
+    localStorage.removeItem('cart');
+  };
+
+  const removeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
   return (
@@ -106,9 +95,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        clearCart,
         toasts,
         removeToast,
-        clearCart,
       }}
     >
       {children}

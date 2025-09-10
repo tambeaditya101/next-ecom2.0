@@ -1,9 +1,9 @@
 'use client';
+import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
-
   const totalPrice = cart.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -13,7 +13,15 @@ export default function CartPage() {
     return (
       <div className='p-6 text-center'>
         <h2 className='text-xl font-bold mb-4'>Your cart is empty</h2>
-        <p>Add some products to continue.</p>
+        <p>Add some products</p>
+        <div className='m-4'>
+          <Link
+            href='/'
+            className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
+          >
+            ← Continue Shopping
+          </Link>
+        </div>
       </div>
     );
   }
@@ -71,7 +79,7 @@ export default function CartPage() {
         <h2 className='text-xl font-bold'>Total: ₹{totalPrice}</h2>
         <button
           className='bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600'
-          onClick={() => clearCart()}
+          onClick={clearCart}
         >
           Checkout
         </button>
