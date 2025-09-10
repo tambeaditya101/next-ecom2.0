@@ -25,9 +25,7 @@ export default function HomePage() {
         {products.map((product, index) => (
           <ProductCard
             key={index}
-            title={product.title}
-            price={product.price}
-            image={product.image}
+            product={product}
             onAddToCart={() => addToCart(product)}
           />
         ))}
