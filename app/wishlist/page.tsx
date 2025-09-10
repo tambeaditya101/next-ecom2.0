@@ -24,7 +24,12 @@ export default function WishlistPage() {
             alt={item.title}
             className='w-full h-40 object-cover mb-2 rounded'
           />
-          <h2 className='font-semibold'>{item.title}</h2>
+          <Link
+            href={`/product/${item.id}`}
+            className='text-blue-600 hover:underline font-medium'
+          >
+            <h2 className='font-semibold'>{item.title}</h2>
+          </Link>
           <p>₹{item.price}</p>
           <button
             className='absolute top-2 right-2 text-red-500 text-lg'

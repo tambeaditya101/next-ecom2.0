@@ -43,7 +43,12 @@ export default function CartPage() {
                 className='w-16 h-16 object-cover rounded'
               />
               <div>
-                <h2 className='font-semibold'>{item.title}</h2>
+                <Link
+                  href={`/product/${item.id}`}
+                  className='text-blue-600 hover:underline font-medium'
+                >
+                  <h2 className='font-semibold'>{item.title}</h2>
+                </Link>
                 <p>Price: ₹{item.price}</p>
               </div>
             </div>
