@@ -1,4 +1,5 @@
 import { Product, useCart } from '@/context/CartContext';
+import Link from 'next/link';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 type ProductCardProps = {
@@ -15,13 +16,15 @@ export default function ProductCard({
 
   return (
     <div className='relative border rounded-xl shadow-md p-4 w-64'>
-      <img
-        src={product.image}
-        alt={product.title}
-        className='w-full h-40 object-cover rounded-md mb-3'
-      />
-      <h2 className='text-lg font-semibold'>{product.title}</h2>
-      <p className='text-gray-600'>₹{product.price}</p>
+      <Link href={`/product/${product.id}`} className='z-10'>
+        <img
+          src={product.image}
+          alt={product.title}
+          className='w-full h-40 object-cover rounded-md mb-3'
+        />
+        <h2 className='text-lg font-semibold'>{product.title}</h2>
+        <p className='text-gray-600'>₹{product.price}</p>
+      </Link>
 
       {/* Add to cart */}
       <button
@@ -34,8 +37,7 @@ export default function ProductCard({
       {/* Wishlist heart */}
       <button
         className='absolute top-2 right-2 text-red-500 text-lg'
-        onClick={(e) => {
-          e.stopPropagation();
+        onClick={() => {
           toggleWishlist(product);
         }}
       >
