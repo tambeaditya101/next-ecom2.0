@@ -23,8 +23,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     try {
       if (isLogin) {
-        login(form.email, form.password);
-        router.push('/');
+        if (!form.email || !form.password) {
+          throw new Error('Please fill in all fields');
+        }
+        if (login(form.email, form.password)) {
+          router.push('/');
+        } else {
+          throw new Error('No user found with these credentials');
+        }
       } else {
         signup(form.username, form.email, form.password);
         router.push('/');
