@@ -1,15 +1,118 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+//
+// MODELS
+//
+
+// 1. Users
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String
+  email     String   @unique
+  password  String
+  role      String   @default("customer") // "customer" | "admin"
+  createdAt DateTime @default(now())
+
+  // relations
+  orders    Order[]
+  cart      CartItem[]
+  wishlist  WishlistItem[]
+  addresses Address[]
+}
+
+// 2. Products
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int      @default(0)
+  category    String?
+  imageUrl    String?
+  attributes  Json?
+  createdAt   DateTime @default(now())
+
+  // relations
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+  wishlist   WishlistItem[]
+}
+
+// 3. Orders
+model Order {
+  id        Int      @id @default(autoincrement())
+  status    String   @default("pending") // pending, paid, shipped, delivered, cancelled
+  total     Float
+  createdAt DateTime @default(now())
+
+  // relations
+  user   User        @relation(fields: [userId], references: [id])
+  userId Int
+  items  OrderItem[]
+}
+
+// 4. Order Items
+model OrderItem {
+  id       Int   @id @default(autoincrement())
+  quantity Int
+  price    Float
+
+  // relations
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+// 5. Cart
+model CartItem {
+  id       Int @id @default(autoincrement())
+  quantity Int @default(1)
+
+  // relations
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  @@unique([userId, productId])
+}
+
+// 6. Wishlist
+model WishlistItem {
+  id Int @id @default(autoincrement())
+
+  // relations
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  @@unique([userId, productId])
+}
+
+// 7. Addresses
+model Address {
+  id         Int     @id @default(autoincrement())
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  postalCode String
+  country    String
+  isDefault  Boolean @default(false)
+
+  // relations
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
 }
