@@ -23,7 +23,17 @@ export async function POST(req: NextRequest) {
     }
 
     const token = await signJwt({ userId: user.id, role: user.role }, '2h');
-    const response = successResponse({ user }, 'Login successful');
+
+    // Select only safe fields (omit password)
+    const safeUser = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
+
+    const response = successResponse({ user: safeUser }, 'Login successful');
     response.cookies.set('token', token, {
       httpOnly: true,
       path: '/',

@@ -1,5 +1,5 @@
-// components/AuthForm.tsx
 'use client';
+
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,28 +12,47 @@ type AuthFormProps = {
 export default function AuthForm({ mode }: AuthFormProps) {
   const { login, signup } = useAuth();
   const router = useRouter();
-  const [form, setForm] = useState({ email: '', password: '', username: '' });
-  const [error, setError] = useState('');
 
   const isLogin = mode === 'login';
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    username: '',
+    role: 'customer',
+  });
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
       if (isLogin) {
-        if (!form.email || !form.password) {
-          throw new Error('Please fill in all fields');
-        }
-        if (login(form.email, form.password)) {
-          router.push('/');
-        } else {
-          throw new Error('No user found with these credentials');
-        }
+        if (!form.email || !form.password)
+          throw new Error('Please fill all fields');
+        const success = await login(form.email, form.password);
+        if (success) router.push('/');
       } else {
-        signup(form.username, form.email, form.password);
-        router.push('/');
+        if (
+          !form.email ||
+          !form.password ||
+          !form.username ||
+          !form.confirmPassword
+        ) {
+          throw new Error('Please fill all fields');
+        }
+        if (form.password !== form.confirmPassword) {
+          throw new Error('Passwords do not match');
+        }
+
+        const success = await signup(
+          form.email,
+          form.password,
+          form.username,
+          form.role
+        );
+        if (success) router.push('/');
       }
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
@@ -50,20 +69,54 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       <form onSubmit={handleSubmit} className='space-y-4'>
         {!isLogin && (
-          <div>
-            <label className='block mb-1 font-medium'>Username</label>
-            <input
-              type='text'
-              value={form.username}
-              onChange={(e) => setForm({ ...form, username: e.target.value })}
-              required
-              className='w-full border px-3 py-2 rounded'
-            />
-          </div>
+          <>
+            <div>
+              <label className='block mb-1 font-medium'>
+                Username <span className='text-red-500'>*</span>
+              </label>
+              <input
+                type='text'
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                required
+                className='w-full border px-3 py-2 rounded'
+              />
+            </div>
+
+            <div>
+              <label className='block mb-1 font-medium'>Role</label>
+              <div className='flex items-center gap-3'>
+                <label className='flex items-center'>
+                  <input
+                    type='radio'
+                    name='role'
+                    value='customer'
+                    checked={form.role === 'customer'}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    className='mr-2'
+                  />
+                  Customer
+                </label>
+                <label className='flex items-center'>
+                  <input
+                    type='radio'
+                    name='role'
+                    value='admin'
+                    checked={form.role === 'admin'}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    className='mr-2'
+                  />
+                  Admin
+                </label>
+              </div>
+            </div>
+          </>
         )}
 
         <div>
-          <label className='block mb-1 font-medium'>Email</label>
+          <label className='block mb-1 font-medium'>
+            Email <span className='text-red-500'>*</span>
+          </label>
           <input
             type='email'
             value={form.email}
@@ -74,7 +127,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
         </div>
 
         <div>
-          <label className='block mb-1 font-medium'>Password</label>
+          <label className='block mb-1 font-medium'>
+            Password <span className='text-red-500'>*</span>
+          </label>
           <input
             type='password'
             value={form.password}
@@ -83,6 +138,23 @@ export default function AuthForm({ mode }: AuthFormProps) {
             className='w-full border px-3 py-2 rounded'
           />
         </div>
+
+        {!isLogin && (
+          <div>
+            <label className='block mb-1 font-medium'>
+              Confirm Password <span className='text-red-500'>*</span>
+            </label>
+            <input
+              type='password'
+              value={form.confirmPassword}
+              onChange={(e) =>
+                setForm({ ...form, confirmPassword: e.target.value })
+              }
+              required
+              className='w-full border px-3 py-2 rounded'
+            />
+          </div>
+        )}
 
         <button
           type='submit'

@@ -7,8 +7,18 @@ export async function GET(req: NextRequest) {
   try {
     const user = getUserFromRequest(req);
     if (!user) return errorResponse('Unauthorized', 401);
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        role: true,
+        createdAt: true,
+        // 👈 password is excluded
+      },
+    });
 
-    const dbUser = await prisma.user.findUnique({ where: { id: user.userId } });
     if (!dbUser) return errorResponse('User not found', 404);
 
     return successResponse(dbUser, 'User info retrieved');

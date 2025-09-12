@@ -25,6 +25,13 @@ export async function POST(req: NextRequest) {
         username,
         role: role || 'customer',
       },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        role: true,
+        createdAt: true,
+      },
     });
 
     // Sign JWT and set HttpOnly cookie
