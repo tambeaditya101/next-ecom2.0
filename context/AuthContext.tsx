@@ -1,4 +1,3 @@
-// context/AuthContext.tsx
 'use client';
 
 import {
@@ -8,23 +7,30 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { toast } from 'react-hot-toast';
 
 type User = {
   id: number;
   email: string;
+  username: string;
   role: string;
+};
+
+type AuthResult = {
+  success: boolean;
+  message?: string;
 };
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<AuthResult>;
   signup: (
     email: string,
     password: string,
     username: string,
     role: string
-  ) => Promise<boolean>;
+  ) => Promise<AuthResult>;
   logout: () => Promise<void>;
 };
 
@@ -44,7 +50,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<AuthResult> => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -52,14 +61,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
+
       if (res.ok && data.data) {
-        setUser(data.data.user); // backend sends user info
-        return true;
+        setUser(data.data.user);
+        return { success: true, message: data.message || 'Login successful' };
       }
-      return false;
+
+      return { success: false, message: data.message || 'Invalid credentials' };
     } catch (err) {
       console.error(err);
-      return false;
+      return { success: false, message: 'Server error' };
     }
   };
 
@@ -68,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     username: string,
     role: string
-  ) => {
+  ): Promise<AuthResult> => {
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -76,20 +87,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ email, password, username, role }),
       });
       const data = await res.json();
+
       if (res.ok && data.data) {
         setUser(data.data.user);
-        return true;
+        return { success: true, message: data.message || 'Signup successful' };
       }
-      return false;
+
+      return { success: false, message: data.message || 'Signup failed' };
     } catch (err) {
       console.error(err);
-      return false;
+      return { success: false, message: 'Server error' };
     }
   };
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
+    toast.success('Logged out successfully!');
   };
 
   return (

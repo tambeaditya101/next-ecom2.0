@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import type { Metadata } from 'next';
+import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -21,7 +22,10 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <Navbar />
-            <main className='flex-1 p-6'>{children}</main>
+            <main className='flex-1 p-6'>
+              {children}
+              <Toaster position='top-right' reverseOrder={false} />
+            </main>
             <Footer />
           </CartProvider>
         </AuthProvider>

@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 type AuthFormProps = {
   mode: 'login' | 'signup';
@@ -22,17 +23,26 @@ export default function AuthForm({ mode }: AuthFormProps) {
     role: 'customer',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // 👈 new state
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
       if (isLogin) {
         if (!form.email || !form.password)
           throw new Error('Please fill all fields');
-        const success = await login(form.email, form.password);
-        if (success) router.push('/');
+        const result = await login(form.email, form.password);
+        if (result.success) {
+          // 👇 small delay before navigation
+          setTimeout(() => router.push('/'), 1000);
+          toast.success('Logged in successfully!');
+          return;
+        } else {
+          throw new Error(result.message || 'Login failed'); // ✅ show error
+        }
       } else {
         if (
           !form.email ||
@@ -46,16 +56,23 @@ export default function AuthForm({ mode }: AuthFormProps) {
           throw new Error('Passwords do not match');
         }
 
-        const success = await signup(
+        const result = await signup(
           form.email,
           form.password,
           form.username,
           form.role
         );
-        if (success) router.push('/');
+        if (result.success) {
+          setTimeout(() => router.push('/'), 1000);
+          toast.success('Signed up successfully!');
+          return;
+        } else {
+          throw new Error(result.message || 'Signup failed');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
+      setLoading(false); // re-enable button if failed
     }
   };
 
@@ -158,9 +175,23 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         <button
           type='submit'
-          className='w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700'
+          disabled={loading}
+          className={`w-full py-2 rounded text-white flex justify-center items-center gap-2 ${
+            loading
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
-          {isLogin ? 'Login' : 'Sign Up'}
+          {loading && (
+            <span className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></span>
+          )}
+          {loading
+            ? isLogin
+              ? 'Logging in...'
+              : 'Signing up...'
+            : isLogin
+            ? 'Login'
+            : 'Sign Up'}
         </button>
       </form>
 
