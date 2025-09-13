@@ -5,6 +5,15 @@ import { User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Button } from './ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -37,7 +46,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className='bg-blue-600 text-white text-lg px-6 py-3 flex items-center justify-between relative'>
+    <nav className='bg-blue-600 text-white text-lg px-6 py-3 flex items-center justify-between sticky top-0'>
       <h1 className='text-lg font-bold'>NextLearn</h1>
 
       <div className='flex space-x-6 relative items-center'>
@@ -70,6 +79,7 @@ export default function Navbar() {
             </div>
           );
         })}
+
         {/* 🔑 Auth Links */}
         {!user ? (
           <div className='relative'>
@@ -81,28 +91,66 @@ export default function Navbar() {
             </Link>
             <span
               className={`
-        absolute left-0 -bottom-1 h-0.5 bg-yellow-300 transition-all duration-300
-        ${pathname === '/login' ? 'w-full' : 'w-0'}
-      `}
+                absolute left-0 -bottom-1 h-0.5 bg-yellow-300 transition-all duration-300
+                ${pathname === '/login' ? 'w-full' : 'w-0'}
+              `}
             />
           </div>
         ) : (
           <div className='flex items-center space-x-4'>
+            {/* ✅ Extra link only for admins */}
+            {user.role === 'admin' && (
+              <Link
+                href='/admin/dashboard'
+                className={`
+      bg-yellow-500 text-white px-3 py-1 rounded-md font-semibold
+      hover:bg-yellow-600 transition duration-300 ease-in-out
+      ${pathname.startsWith('/admin') ? 'font-bold ring-2 ring-yellow-300' : ''}
+    `}
+              >
+                Admin Panel
+              </Link>
+            )}
+
+            {/* Profile */}
             <Link href='/profile' className='hover:opacity-80'>
               <div className='w-8 h-8 rounded-full bg-white dark:bg-blue-600 flex items-center justify-center'>
                 <User className='w-5 h-5 text-blue-600 dark:text-white ' />
               </div>
             </Link>
 
-            <button
-              onClick={() => {
-                logout();
-                router.push('/');
-              }}
-              className='bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600'
-            >
-              Logout
-            </button>
+            {/* Logout with Confirmation */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className='bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600 transition duration-300'>
+                  Logout
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Confirm Logout</DialogTitle>
+                </DialogHeader>
+                <DialogFooter className='flex justify-end gap-2'>
+                  <Button
+                    variant='outline'
+                    onClick={() => {
+                      // just close dialog
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant='destructive'
+                    onClick={() => {
+                      logout();
+                      router.push('/');
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>
