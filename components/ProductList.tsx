@@ -1,10 +1,24 @@
 'use client';
+import { useEffect, useState } from 'react';
 import ProductCard from '../components/ProductCard';
 import { useCart } from '../context/CartContext';
-import products from '../data/products.json';
+// import products from '../data/products.json';
 
 export default function HomePage() {
   const { addToCart, toasts } = useCart();
+  const [products, setProducts] = useState([]);
+
+  const getProducts = async () => {
+    try {
+      const data = await fetch('/api/products').then((res) => res.json());
+      setProducts(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getProducts();
+  }, []);
 
   return (
     <div className='relative'>

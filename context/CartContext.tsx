@@ -7,11 +7,15 @@ import {
   useState,
 } from 'react';
 
+// Backend Product type
 export type Product = {
   id: number;
-  title: string;
+  name: string;
   price: number;
-  image: string;
+  imageUrl: string;
+  stock: number;
+  description?: string;
+  category?: string;
 };
 
 export type CartItem = Product & { quantity: number };
@@ -37,7 +41,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Load cart & wishlist from localStorage on mount
+  // Load cart & wishlist from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) setCart(JSON.parse(savedCart));
@@ -46,7 +50,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
   }, []);
 
-  // Save cart & wishlist whenever they change
+  // Save cart & wishlist to localStorage
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
@@ -55,24 +59,36 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
+  const showToast = (message: string) => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message }]);
+    setTimeout(() => removeToast(id), 2000);
+  };
+
   // Add product to cart
   const addToCart = (product: Product) => {
     setCart((prev) => {
-      const index = prev.findIndex((item) => item.title === product.title);
+      const index = prev.findIndex((item) => item.id === product.id);
+
       if (index !== -1) {
+        if (prev[index].quantity + 1 > product.stock) {
+          showToast(`Only ${product.stock} items available`);
+          return prev;
+        }
         return prev.map((item, i) =>
           i === index ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
+
+      if (product.stock < 1) {
+        showToast('Product is out of stock');
+        return prev;
+      }
+
       return [...prev, { ...product, quantity: 1 }];
     });
 
-    const id = Date.now();
-    setToasts((prev) => [
-      ...prev,
-      { id, message: `${product.title} added to cart!` },
-    ]);
-    setTimeout(() => removeToast(id), 2000);
+    showToast(`${product.name} added to cart!`);
   };
 
   // Remove product from cart
@@ -84,45 +100,31 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const updateQuantity = (index: number, quantity: number) => {
     setCart((prev) =>
       prev.map((item, i) =>
-        i === index ? { ...item, quantity: Math.max(quantity, 1) } : item
+        i === index
+          ? { ...item, quantity: Math.min(Math.max(quantity, 1), item.stock) }
+          : item
       )
     );
   };
 
-  // Clear cart (checkout)
-  const clearCart = (showToast = true) => {
-    if (showToast) {
-      const id = Date.now();
-      setToasts((prev) => [...prev, { id, message: 'Checkout successful!' }]);
-      setTimeout(() => removeToast(id), 2000);
-    }
-
+  // Clear cart
+  const clearCart = () => {
     setCart([]);
     localStorage.removeItem('cart');
+    showToast('Checkout successful!');
   };
 
-  // Add/remove product to/from wishlist
+  // Wishlist toggle
   const toggleWishlist = (product: Product) => {
-    const exists = wishlist.find((item) => item.title === product.title);
-    const id = Date.now();
+    const exists = wishlist.find((item) => item.id === product.id);
 
     if (exists) {
-      setWishlist((prev) =>
-        prev.filter((item) => item.title !== product.title)
-      );
-      setToasts((prev) => [
-        ...prev,
-        { id, message: `${product.title} removed from wishlist` },
-      ]);
+      setWishlist((prev) => prev.filter((item) => item.id !== product.id));
+      showToast(`${product.name} removed from wishlist`);
     } else {
       setWishlist((prev) => [...prev, product]);
-      setToasts((prev) => [
-        ...prev,
-        { id, message: `${product.title} added to wishlist` },
-      ]);
+      showToast(`${product.name} added to wishlist`);
     }
-
-    setTimeout(() => removeToast(id), 2000);
   };
 
   // Remove toast

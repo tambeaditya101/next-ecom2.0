@@ -54,8 +54,8 @@ export default function CartPage() {
             >
               <div className='flex items-center gap-4'>
                 <img
-                  src={item.image}
-                  alt={item.title}
+                  src={item.imageUrl}
+                  alt={item.name}
                   className='w-16 h-16 object-cover rounded'
                 />
                 <div>
@@ -63,7 +63,7 @@ export default function CartPage() {
                     href={`/product/${item.id}`}
                     className='text-blue-600 hover:underline font-medium'
                   >
-                    <h2 className='font-semibold'>{item.title}</h2>
+                    <h2 className='font-semibold'>{item.name}</h2>
                   </Link>
                   <p>₹{item.price}</p>
                 </div>

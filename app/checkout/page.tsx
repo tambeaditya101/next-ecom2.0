@@ -146,7 +146,7 @@ export default function CheckoutPage() {
               className='flex justify-between items-center border-b py-2'
             >
               <span>
-                {item.title} × {item.quantity}
+                {item.name} × {item.quantity}
               </span>
               <span>₹{item.price * item.quantity}</span>
             </div>
