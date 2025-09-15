@@ -9,8 +9,6 @@ export default function WishlistPage() {
   const { user } = useAuth();
   const { wishlist, toggleWishlist } = useCart();
 
-  if (!user) return null; // avoid flash of unauthorized state
-
   if (wishlist.length === 0)
     return (
       <div className='flex flex-col items-center justify-center py-20 text-center'>

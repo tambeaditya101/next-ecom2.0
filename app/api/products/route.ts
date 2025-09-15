@@ -3,13 +3,55 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse, successResponse } from '@/lib/response';
 import { NextRequest } from 'next/server';
 
-// Get all products
-export async function GET() {
+// Get all products with filters
+export async function GET(req: NextRequest) {
   try {
-    const products = await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    return successResponse(products, 'Products fetched successfully');
+    const { searchParams } = new URL(req.url);
+
+    const q = searchParams.get('q') || '';
+    const sort = searchParams.get('sort') || 'newest';
+    const category = searchParams.get('category') || '';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '9', 10);
+
+    // Prisma "where" clause
+    const where: any = {};
+
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: 'insensitive' } },
+        { description: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+
+    if (category) {
+      where.category = category;
+    }
+
+    // Prisma "orderBy"
+    let orderBy: any = { createdAt: 'desc' }; // default newest
+    if (sort === 'price_asc') orderBy = { price: 'asc' };
+    if (sort === 'price_desc') orderBy = { price: 'desc' };
+
+    const skip = (page - 1) * limit;
+
+    // Fetch products
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return successResponse(
+      { products, totalPages, total },
+      'Products fetched successfully'
+    );
   } catch (err) {
     console.error(err);
     return errorResponse('Failed to fetch products', 500);
