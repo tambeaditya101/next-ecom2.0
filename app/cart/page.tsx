@@ -19,20 +19,23 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className='p-6 text-center'>
-        <h2 className='text-xl font-bold mb-4'>Your cart is empty</h2>
-        <p>Add some products</p>
-        <div className='m-4'>
-          <Link
-            href='/'
-            className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
-          >
-            ← Continue Shopping
-          </Link>
-        </div>
+      <div className='flex flex-col items-center justify-center py-20 text-center'>
+        <h2 className='text-2xl font-semibold text-gray-800 mb-2'>
+          Your cart is empty 🛒
+        </h2>
+        <p className='text-gray-500 mb-6'>
+          Looks like you haven’t added anything yet.
+        </p>
+        <Link
+          href='/'
+          className='px-6 py-3 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition'
+        >
+          ← Continue Shopping
+        </Link>
       </div>
     );
   }
+
   const hasOutOfStock = cart.some((item) => item.stock <= 0);
 
   return (

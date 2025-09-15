@@ -32,6 +32,7 @@ type CartContextType = {
   clearCart: () => void;
   toasts: Toast[];
   removeToast: (id: number) => void;
+  clearWishlist: () => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -111,7 +112,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = () => {
     setCart([]);
     localStorage.removeItem('cart');
-    showToast('Checkout successful!');
   };
 
   // Wishlist toggle
@@ -132,6 +132,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  // Clear wishlist
+  const clearWishlist = () => {
+    setWishlist([]);
+    localStorage.removeItem('wishlist');
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -144,6 +150,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         toasts,
         removeToast,
+        clearWishlist,
       }}
     >
       {children}
