@@ -53,7 +53,11 @@ export default function ProductDetail() {
   const isFavorite = wishlist.some((item) => item.id === product.id);
 
   return (
-    <div className='max-w-3xl mx-auto p-6'>
+    <div
+      className={`max-w-3xl mx-auto p-6 ${
+        product.stock <= 0 ? 'opacity-50 pointer-events-none grayscale' : ''
+      }`}
+    >
       <div className='border rounded-xl shadow-md overflow-hidden'>
         {/* Product Image */}
         <img

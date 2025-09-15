@@ -39,6 +39,7 @@ export default function CartPage() {
       </div>
     );
   }
+  const hasOutOfStock = cart.some((item) => item.stock <= 0);
 
   return (
     <div className='p-6 max-w-5xl mx-auto'>
@@ -115,6 +116,7 @@ export default function CartPage() {
           <button
             className='w-full mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700'
             onClick={() => router.push('/checkout')}
+            disabled={hasOutOfStock}
           >
             Proceed to Checkout
           </button>

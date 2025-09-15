@@ -35,7 +35,7 @@ export default function HomePage() {
       </div>
 
       {/* Products Grid */}
-      <div className='flex gap-6 flex-wrap p-4 mt-4'>
+      <div className='flex gap-6 flex-wrap p-4 mt-4 '>
         {products.map((product, index) => (
           <ProductCard
             key={index}

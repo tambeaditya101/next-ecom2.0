@@ -9,14 +9,13 @@ import { useEffect, useState } from 'react';
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { cart, clearCart } = useCart();
 
   useEffect(() => {
     if (!user) {
       router.push('/login');
     }
   }, [user]);
-
-  const { cart } = useCart();
 
   const subtotal = cart.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -33,12 +32,13 @@ export default function CheckoutPage() {
     city: '',
     zip: '',
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.name || !form.email || !form.address) {
@@ -46,10 +46,43 @@ export default function CheckoutPage() {
       return;
     }
 
-    // In real app: send {form, cart, total} to backend
-    console.log('Order placed:', { ...form, cart, total });
+    if (!user) {
+      alert('Please log in to place an order.');
+      router.push('/login');
+      return;
+    }
 
-    router.push('/order-success');
+    try {
+      setLoading(true);
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cart: cart.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
+          userId: user.id, // 👈 make sure your AuthContext provides `user.id`
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Checkout failed');
+      }
+
+      console.log('✅ Order placed:', data);
+
+      clearCart(); // remove local cart after successful checkout
+      router.push('/order-success');
+    } catch (err: any) {
+      alert(err.message || 'Something went wrong');
+      console.error('Checkout error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (cart.length === 0) {
@@ -167,9 +200,14 @@ export default function CheckoutPage() {
 
           <button
             type='submit'
-            className='w-full mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700'
+            disabled={loading}
+            className={`w-full mt-6 px-6 py-2 rounded text-white ${
+              loading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-green-600 hover:bg-green-700'
+            }`}
           >
-            Place Order
+            {loading ? 'Placing Order...' : 'Place Order'}
           </button>
         </div>
       </form>

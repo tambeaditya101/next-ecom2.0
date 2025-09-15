@@ -15,7 +15,10 @@ export default function ProductCard({
   const isFavorite = wishlist.some((item) => item.id === product.id);
 
   return (
-    <div className='relative border rounded-xl shadow-md p-4 w-64'>
+    <div
+      className={`relative border rounded-xl shadow-md p-4 w-64
+    ${product.stock <= 0 ? 'opacity-50 grayscale' : ''}`}
+    >
       <Link href={`/product/${product.id}`} className='z-10'>
         <img
           src={product.imageUrl || '/placeholder.png'}
@@ -24,12 +27,14 @@ export default function ProductCard({
         />
         <h2 className='text-lg font-semibold'>{product.name}</h2>
         <p className='text-gray-600'>₹{product.price}</p>
+        <p className='text-gray-600'>Units -{product.stock} </p>
       </Link>
 
       {/* Add to cart */}
       <button
         onClick={onAddToCart ? onAddToCart : () => addToCart(product)}
         className='mt-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700'
+        disabled={product.stock <= 0}
       >
         Add to Cart
       </button>
