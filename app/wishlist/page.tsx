@@ -3,19 +3,10 @@
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function WishlistPage() {
-  const router = useRouter();
   const { user } = useAuth();
   const { wishlist, toggleWishlist } = useCart();
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user]);
 
   if (!user) return null; // avoids rendering until redirect
 

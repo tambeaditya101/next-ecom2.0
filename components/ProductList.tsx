@@ -36,13 +36,14 @@ export default function HomePage() {
 
       {/* Products Grid */}
       <div className='flex gap-6 flex-wrap p-4 mt-4 '>
-        {products.map((product, index) => (
-          <ProductCard
-            key={index}
-            product={product}
-            onAddToCart={() => addToCart(product)}
-          />
-        ))}
+        {products &&
+          products.map((product, index) => (
+            <ProductCard
+              key={index}
+              product={product}
+              onAddToCart={() => addToCart(product)}
+            />
+          ))}
       </div>
     </div>
   );

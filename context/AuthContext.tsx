@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { toast } from 'react-hot-toast';
+import { useCart } from './CartContext';
 
 type User = {
   id: number;
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { clearCart } = useCart();
 
   // Fetch current user on mount
   useEffect(() => {
@@ -103,6 +105,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
+    clearCart();
+
     toast.success('Logged out successfully!');
   };
 

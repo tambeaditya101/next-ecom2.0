@@ -2,17 +2,11 @@
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 
 export default function CartPage() {
   const router = useRouter();
   const { user } = useAuth();
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user]);
 
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
 

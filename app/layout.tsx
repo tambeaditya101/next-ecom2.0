@@ -19,16 +19,16 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className='min-h-screen flex flex-col'>
-        <AuthProvider>
-          <CartProvider>
+        <CartProvider>
+          <AuthProvider>
             <Navbar />
             <main className='flex-1'>
               {children}
               <Toaster position='top-right' reverseOrder={false} />
             </main>
             <Footer />
-          </CartProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </CartProvider>
       </body>
     </html>
   );
