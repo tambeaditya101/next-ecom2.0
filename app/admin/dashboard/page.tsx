@@ -46,7 +46,7 @@ export default function AdminDashboard() {
       try {
         const res = await fetch('/api/products');
         const data = await res.json();
-        if (res.ok) setProducts(data.data);
+        if (res.ok) setProducts(data.data.products);
         else toast.error(data.message || 'Failed to load products');
       } catch (err) {
         console.error(err);

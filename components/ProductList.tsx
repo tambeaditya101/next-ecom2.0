@@ -1,15 +1,17 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Pagination from './Pagination';
 import ProductCard from './ProductCard';
 import ProductToolbar from './ProductToolbar';
 
 export default function HomePage() {
+  const router = useRouter();
   const { addToCart, toasts } = useCart();
   const [products, setProducts] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [categories, setCategories] = useState<string[]>([]);
 
   const searchParams = useSearchParams();
@@ -17,14 +19,16 @@ export default function HomePage() {
   const sort = searchParams.get('sort') || '';
   const category = searchParams.get('category') || '';
   const page = Number(searchParams.get('page')) || 1;
+  const limit = 10;
 
   const getProducts = async () => {
     try {
       const res = await fetch(
-        `/api/products?q=${q}&sort=${sort}&category=${category}&page=${page}&limit=9`
+        `/api/products?q=${q}&sort=${sort}&category=${category}&page=${page}&limit=${limit}`
       );
       const data = await res.json();
       setProducts(data.data.products);
+      setTotalPages(data.data.totalPages);
     } catch (error) {
       console.error(error);
     }
@@ -74,7 +78,7 @@ export default function HomePage() {
           />
         ))}
       </div>
-      <Pagination totalPages={5} />
+      <Pagination totalPages={totalPages} />
     </div>
   );
 }

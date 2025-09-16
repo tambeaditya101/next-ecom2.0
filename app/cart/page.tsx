@@ -2,11 +2,18 @@
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 
 export default function CartPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/unauthorized');
+    }
+  }, [user, loading]);
 
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
 

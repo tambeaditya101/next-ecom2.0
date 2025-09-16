@@ -6,23 +6,32 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
   const { pathname } = req.nextUrl;
 
-  // If no token → handle differently for API vs Pages
+  // Disable caching → always check fresh
+
+  // If no token → handle unauthorized
   if (!token) {
     return handleUnauthorized(req);
   }
 
   // Verify token
-  const payload = await verifyJwt(token).catch(() => null);
-  if (!payload) {
+  let payload;
+  try {
+    payload = await verifyJwt(token);
+  } catch {
     return handleUnauthorized(req);
   }
 
-  // Attach user info for downstream API usage
-  const headers = new Headers(req.headers);
-  headers.set('x-user-id', String(payload.userId));
-  headers.set('x-user-role', payload.role || '');
+  if (!payload) {
+    return handleUnauthorized(req);
+  }
+  const res = NextResponse.next();
 
-  return NextResponse.next({ request: { headers } });
+  // Attach user info
+  res.headers.set('x-user-id', String(payload.userId));
+  res.headers.set('x-user-role', payload.role || '');
+  res.headers.set('Cache-Control', 'no-store');
+
+  return res;
 }
 
 function handleUnauthorized(req: NextRequest) {
@@ -36,6 +45,9 @@ function handleUnauthorized(req: NextRequest) {
     );
   }
 
+  if (pathname === '/unauthorized') {
+    return NextResponse.next(); // don’t redirect loop
+  }
   // If request is for a page → redirect to login
   const loginUrl = new URL('/unauthorized', req.url);
   return NextResponse.redirect(loginUrl);
