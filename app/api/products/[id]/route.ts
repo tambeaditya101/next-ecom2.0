@@ -22,10 +22,7 @@ export async function GET(_req: NextRequest, context: any) {
 }
 
 // Update product (admin only)
-export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, context: any) {
   try {
     const { id } = context.params;
 
@@ -51,10 +48,7 @@ export async function PUT(
 }
 
 // Delete product (admin only)
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, context: any) {
   try {
     const { id } = context.params;
 
