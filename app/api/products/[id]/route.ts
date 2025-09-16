@@ -4,10 +4,7 @@ import { errorResponse, successResponse } from '@/lib/response';
 import { NextRequest } from 'next/server';
 
 // Get single product
-export async function GET(
-  _req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, context: any) {
   try {
     const { id } = context.params;
 
