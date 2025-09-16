@@ -69,6 +69,11 @@ export default function HomePage() {
       </div>
 
       {/* Products Grid */}
+      {products.length === 0 && (
+        <p className='text-gray-500 text-center align-middle'>
+          No products yet!. Signup as Admin & add products to the store.
+        </p>
+      )}
       <div className='flex gap-6 flex-wrap p-4 mt-4'>
         {products.map((product, index) => (
           <ProductCard
