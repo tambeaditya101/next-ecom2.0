@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Next.js Learn',
+  title: 'NextLearn store',
   description: 'Minimal Next.js + Tailwind starter',
 };
 
