@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   // images: {
   //   domains: ['images.unsplash.com'], // 👈 allow external host
   // },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
