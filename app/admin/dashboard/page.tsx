@@ -58,13 +58,6 @@ export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
 
-  // redirect if not admin
-  useEffect(() => {
-    if (user && user.role !== 'admin') {
-      router.push('/');
-    }
-  }, [user, router]);
-
   // fetch products (initial)
   useEffect(() => {
     let mounted = true;

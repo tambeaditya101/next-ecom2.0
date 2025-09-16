@@ -24,6 +24,11 @@ export async function middleware(req: NextRequest) {
   if (!payload) {
     return handleUnauthorized(req);
   }
+  // 🔴 Extra check → if accessing /admin/* and role is not admin → block
+  if (pathname.startsWith('/admin') && payload.role !== 'admin') {
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
+  }
+
   const res = NextResponse.next();
 
   // Attach user info
@@ -60,6 +65,7 @@ export const config = {
     '/wishlist/:path*',
     '/checkout/:path*',
     '/profile/:path*',
+    '/admin/:path*',
     '/api/cart/:path*',
     '/api/wishlist/:path*',
     '/api/checkout/:path*',

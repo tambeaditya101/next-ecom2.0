@@ -46,7 +46,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className='bg-blue-600 text-white text-lg px-6 py-3 flex items-center justify-between sticky top-0'>
+    <nav className='bg-blue-600 text-white text-lg px-6 py-3 flex items-center justify-between sticky top-0 z-10 shadow-md'>
       <h1 className='text-lg font-bold'>NextLearn</h1>
 
       <div className='flex space-x-6 relative items-center'>
