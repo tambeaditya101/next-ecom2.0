@@ -12,8 +12,7 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get('category') || '';
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 9;
-
-    const skip = (page - 1) * limit;
+    const all = searchParams.get('all') === 'true'; // 👈 special flag for admin
 
     const where: any = {};
     if (q) {
@@ -22,6 +21,22 @@ export async function GET(req: NextRequest) {
     if (category) {
       where.category = category;
     }
+
+    // ✅ If admin requests all products
+    if (all) {
+      const products = await prisma.product.findMany({
+        where,
+        orderBy: { createdAt: sort === 'asc' ? 'asc' : 'desc' },
+      });
+
+      return successResponse(
+        { products, total: products.length },
+        'All products fetched successfully'
+      );
+    }
+
+    // ✅ Default: paginated products
+    const skip = (page - 1) * limit;
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
