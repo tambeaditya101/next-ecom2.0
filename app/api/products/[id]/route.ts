@@ -5,13 +5,16 @@ import { NextRequest } from 'next/server';
 
 // Get single product
 export async function GET(
-  _: NextRequest,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = context.params;
+
     const product = await prisma.product.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
     });
+
     if (!product) return errorResponse('Product not found', 404);
 
     return successResponse(product, 'Product fetched successfully');
@@ -24,9 +27,11 @@ export async function GET(
 // Update product (admin only)
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = context.params;
+
     const token = req.cookies.get('token')?.value;
     if (!token) return errorResponse('Unauthorized', 401);
 
@@ -37,7 +42,7 @@ export async function PUT(
 
     const body = await req.json();
     const updated = await prisma.product.update({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       data: body,
     });
 
@@ -51,9 +56,11 @@ export async function PUT(
 // Delete product (admin only)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = context.params;
+
     const token = req.cookies.get('token')?.value;
     if (!token) return errorResponse('Unauthorized', 401);
 
@@ -62,7 +69,7 @@ export async function DELETE(
       return errorResponse('Forbidden', 403);
     }
 
-    await prisma.product.delete({ where: { id: Number(params.id) } });
+    await prisma.product.delete({ where: { id: Number(id) } });
     return successResponse(null, 'Product deleted successfully');
   } catch (err) {
     console.error(err);
